@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="ui.css">
+  <title>Representing the circular linked-list</title>
+</head>
+
+<body>
+ 
+  <div id="root">
+    <div class="content">
+
+      <div class="size-container">
+    
+        <div style="color:white;">Size:</div>
+        <div id="size">0</div>
+      </div>
+
+      <div class="visual-space">
+        <div class="row left-right">
+          <div class="add-head">
+            <div><input type="text" class="temp-input-field" placeholder="value" value="head" spellcheck="false"></div>
+            <div class="plus" onclick="addHead()">+</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-bar">
+        <div class="ops tool">
+          <div class="icon-container">
+            <button class="icon" style="background-color: black;" 
+            onclick="toggleOpen(this.parentElement.parentElement)"> Single Linked-List</button>
+          </div>
+
+          <div class="ops tool-content">
+            <div>
+              <div>
+                <button onclick="init(addRandomNodes)" class="button">Add Random Nodes</button>
+              </div>
+              <br>
+              <div class="heading">Custom Node</div>
+              <div>
+                <div class="text-light">Node Value</div>
+                <input type="text" id="node-value" value="" class="input-field" spellcheck="false" placeholder="val">
+                <div class="text-light">Index</div>
+                <input type="number" id="index" value="0" class="input-field">
+                <button onclick="init(addNodeByInputBox)" class="button">Add Node</button>
+                <div class="add-error error"></div>
+              </div>
+            </div>
+            <br>
+            <div>
+              <div class="text-light">Set no of Columns</div>
+              <input type="number" id="max-columns" min="1" class="input-field" value="10">
+              <button id="max-column-input-btn" class="button" onclick="init(setMaxColumn)">set</button>              
+            </div>
+            <br>
+            <div class="heading">Remove Node(s)</div>
+            <div>
+              <div class="text-light">Index to remove</div>
+              <input type="number" id="remove-index" class="input-field">
+              <div class="text-light">remove count</div>
+              <input type="number" id="count" class="input-field">
+              <button class="button-orange" onclick="init(removeNode)">Remove</button>
+              <div class="remove-error error"></div>
+            </div>
+            <div>
+              <button class="button-orange" style="margin-top: 6px; width: 120px;" onclick="init(emptyList)">Empty List</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="styles tool">
+          <div class="icon-container">
+            <button class="icon" style="background-color:black;" 
+            onclick="toggleOpen(this.parentElement.parentElement)">STYLES</button>
+          </div>
+
+          <div class="styles-content tool-content">
+              <div class="heading">Node Customize</div>
+              <br>
+              <div>
+                <div>
+                  <label class="text-light">Node Color</label>
+                  <input type="color" id="node-color">
+                </div>
+                <br>
+                <label class="text-light">Node Value Color</label>
+                <input type="color" id="node-value-color">
+              </div>
+              
+              <div>
+                <div id="current-speed" class="text-light">Speed: 0.5</div>
+                <input type="range" id="speed" min="0.5" max="5" step="0.01" oninput="setSpeed(this.value)" value="0.5"/>
+              </div>
+             
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <style>
+
+  *{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  }
+  
+  body{
+    background-color:papayawhip;
+    overflow: hidden;
+  }
+  
+  .visual-space{
+    position: relative;
+    background-color:peru;
+   
+    height: 100vh;
+    min-width: 97vw;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    overflow: scroll;
+  }
+  
+  .node{
+    position: relative;
+    width: 54px;
+    height: 54px;
+    margin-right: 50px;
+  }
+  
+  .node-content{
+    position: absolute;
+    z-index: 1;
+    width: 54px;
+    height: 54px;
+    border-radius: 30%;
+    text-align: center;
+  }
+  
+  .arrow{
+    position: relative;
+    z-index: 0;
+  }
+  
+  .row{
+    position: relative;
+    height: 40px;
+    display: flex;
+    margin-bottom: 70px;
+  }
+  
+  .left-right{
+    flex-direction: row;
+  }
+  
+  .right-left{
+    flex-direction: row-reverse;
+    transform: translateX(50px);
+  }
+  
+  .content, .size-container{
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .size-container{
+    align-items: center;
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    column-gap: 4px;
+    padding: 5px;
+    z-index: 2;
+    width: 70px;
+    height: 30px;
+    opacity: 0.2;
+    background-color: rgb(0, 0, 0);
+    user-select: none;
+    transition: opacity 0.3s;
+  }
+  
+  #size{
+    color: rgb(0, 255, 0);
+    font-size: 18px;
+  }
+  
+  .size-container:hover{
+    opacity: 0.8;
+  }
+  
+  .pop-up{
+    display: flex;
+    position: relative;
+    width: 100px;
+    height: max-content;
+    background-color: rgb(186, 199, 186);
+    z-index: 3;
+    border-radius: 5px;
+    top: 50px;
+    transform: translate(-16px, -50px) scale(0.5, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 1.2s;
+    padding: 5px;
+  }
+  
+  .pop-up-arrow{
+    position: absolute;
+    background-color:rgb(186, 199, 186);
+    z-index: -1;
+    width: 40px;
+    height: 40px;
+    transform: rotate(45deg);
+    top: -10px;
+    left: 20px;
+  }
+  
+  .pop{
+    pointer-events: all;
+    transform: translate(-16px, 0px) scale(1, 1);
+    opacity: 1;
+  }
+  
+  .above{
+    z-index: 10;
+  }
+  
+  .pop-up-content{
+    display: flex;
+    flex-direction: column;
+    row-gap: 3px;
+    width: 100%;
+  }
+  
+  .add-head{
+    width: 54px;
+    height: 54px;
+    background-color: rgba(179, 125, 92, 0.63);
+    padding: 4px;
+    border: 2px rgb(65, 63, 63) dotted;
+    border-radius: 20%;
+  }
+  
+  .temp-input-field{
+    position: absolute;
+    outline: none;
+    border: 0;
+    width: 42px;
+    z-index: 1;
+    border-radius: 5px;
+    padding: 1px;
+    transition: all 0.3s;
+    background-color: rgb(214, 152, 93);
+    opacity: 0.4;
+    color: white;
+  }
+  
+  .temp-input-field::placeholder{
+    color: rgba(255, 255, 255, 0.547);
+  }
+  
+  .plus{
+    position: absolute;
+    user-select: none;
+    display: inline;
+    left: 27px;
+    top: 35px;
+    font-size: 56px;
+    transform: translate(-50%, -50%);
+    color: rgb(255, 255, 255);
+    transition: all 0.3s;
+    opacity: 0.4;
+  }
+  
+  .plus:hover, .temp-input-field:hover{
+    opacity: 3;
+  }
+  
+  .temp-input-field:focus{
+    opacity: 1;
+  }
+  </style>
+  <style>
+    .visual-space::-webkit-scrollbar, .tool-content::-webkit-scrollbar{
+      width: 18px;
+      background-color: rgba(36, 33, 33, 0.6);
+    }
+    
+    .visual-space::-webkit-scrollbar-thumb, .tool-content::-webkit-scrollbar-thumb{
+      background-color: rgb(174, 182, 152);
+      border-radius: 8px;
+    }
+    
+    .visual-space::-webkit-scrollbar-corner{
+      background-color: rgb(36, 33, 33, 0.6);
+    }
+    
+    .tool-content::-webkit-scrollbar{
+      width: 10px;
+    }
+    
+    .tool-bar{
+      position: fixed;
+      right: -192px;
+      z-index: 20;
+    }
+    
+    .tool{
+      position: relative;
+      width: 200px;
+      transition: transform 1.2s;
+    }
+    
+    .tool-content{
+      overflow-y: auto;
+    }
+    
+    .ops{
+      height: 60vh;
+      background-color: rgb(23, 23, 34);
+      border-left: solid 8px black;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .styles{
+      height: 40vh;
+      background-color: rgb(31, 23, 23);
+      border-left: solid 8px rgb(24, 24, 24);
+    }
+    
+    .styles-content{
+      height: 100%;
+    }
+    
+    .open{
+      transform: translateX(-192px);
+    }
+    
+    .icon{
+      border: 0;
+      outline: none;
+      position: absolute;
+      width: 30px;
+      z-index: -1;
+      height: 40px;
+      padding-left: 16px;
+      letter-spacing: 16px;
+      border-bottom-left-radius: 30px;
+      border-top-left-radius: 30px;
+      font-size: 18px;
+      color: aliceblue;
+      white-space: pre;
+      overflow: hidden;
+      user-select: none;
+    }
+    
+    .icon-container{
+      width: max-content;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%) translateX(-30px);
+    }
+    
+    .text-light{
+      color: aliceblue;
+      margin: 3px;
+      margin-left: 1px;
+      user-select: none;
+    }
+    
+    .text-dark{
+      color: rgb(29, 28, 28);
+      user-select: none;
+    }
+    
+    .node-text{
+      transform: translateY(60%);
+      overflow: hidden;
+      pointer-events: none;
+    }
+    
+    .input-field{
+      border: solid 1px white;
+      outline: none;
+      background-color: rgb(213, 236, 195);
+      width: 50px;
+      padding: 2px;
+      height: 24px;
+      font-size: 20px;
+    }
+    
+    .button, .button-orange{
+      outline: none;
+      background-color: rgb(80, 172, 76);
+      border: 0;
+      color: whitesmoke;
+      min-width: 40px;
+      height: 24px;
+      padding-left: 3px;
+      padding-right: 3px;
+      font-size: 16px;
+      transition: all 0.25s;
+      border: 1px solid rgb(117, 201, 117);
+      transform: translateY(-2px);
+      user-select: none;
+    }
+    
+    .button:hover{
+      background-color: rgb(102, 211, 87);
+    }
+    
+    .button:active{
+      background-color: rgb(139, 230, 112);
+    }
+    
+    .ll-ops, .styles-content{
+      padding: 6px;
+    }
+    
+    .button-orange{
+      background-color: rgb(194, 53, 53);
+      border: 1px solid rgb(197, 85, 85);
+    }
+    
+    .button-orange:hover{
+      background-color: rgb(224, 92, 92);
+    }
+    
+    .button-orange:active{
+      background-color: rgb(238, 56, 56);
+    }
+    
+    .value{
+      position: absolute;
+      user-select: none;
+    }
+    
+    .error{
+      color: rgb(230, 75, 75);
+      margin-top: 3px;
+      font-size: 14px;
+    }
+    
+    .heading{
+      font-size: 22px;
+      color: rgb(189, 217, 241);
+      user-select: none;
+    }
+    
+    #node-color, #node-value-color{
+      width: 20px;
+      height: 20px;
+      outline: none;
+    }
+    
+  </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js"></script>
+<script src="canvas.js"></script>
+  <script src="linkedlist.js"></script>
+  <script src="projectscript.js"></script>
+  <script src="projectuijs.js"></script>
+
+  
+</body>
+</html>
